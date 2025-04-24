@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: none;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #2f2f2f;
+    border-radius: 4px;
+  }
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  display: none;
+}

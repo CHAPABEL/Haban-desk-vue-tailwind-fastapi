@@ -4,10 +4,11 @@ import { computed, reactive } from 'vue'
 import MenuSection from '../components/MnComponents/MenuSection.vue'
 import NavBar from '@/components/JstComponents/NavBar.vue'
 const nowDate = ref(new Date().toISOString().split('T')[0])
-const dateRefs = reactive<Record<number, HTMLInputElement | null>>({})
+
 const columnData = ref<column[]>([])
 const newTask = ref('')
 const dateInput = ref('')
+const taskName = ref('')
 const taskDataArray = ref<Task[]>([])
 
 function autoResize(event: Event) {
@@ -16,9 +17,13 @@ function autoResize(event: Event) {
   textarea.style.height = `${textarea.scrollHeight}px`
 }
 
+const dateRefs = reactive<Record<number, HTMLInputElement | null>>({})
 function openDateHeader(taskId: number) {
-  const el = dateRefs[taskId]
-  el?.showPicker?.() || el?.click()
+  const inputRef = dateRefs[taskId]
+  if (inputRef) {
+    inputRef.click()
+  }
+  console.log(dateRefs)
 }
 
 interface Task {
@@ -26,14 +31,17 @@ interface Task {
   dateInp: string
   textValue: string
 }
+
 interface column {
   taskValue: number
+  nameTask: string
   taskData: Task[]
 }
 
 function createPushData() {
   columnData.value.push({
     taskValue: Date.now(),
+    nameTask: 'Задача',
     taskData: [],
   })
   taskDataArray.value = []
@@ -57,13 +65,17 @@ function getDateNow(task: Task) {
 function addToTaskList(columnIndex: number, event: MouseEvent) {
   columnData.value[columnIndex].taskData.push({
     id: Date.now(),
-    dateInp: nowDate.value,
     textValue: '',
+    dateInp: nowDate.value,
   })
   newTask.value = ''
   dateInput.value = ''
   console.log(columnData.value[columnIndex].taskData)
 }
+
+defineExpose({
+  dateRefs,
+})
 </script>
 
 <template>
@@ -81,11 +93,11 @@ function addToTaskList(columnIndex: number, event: MouseEvent) {
         >
           <div class="flex flex-col gap-2">
             <textarea
+              v-model="item.nameTask"
               class="text-base text-white siz resize-none h-6 focus:ring-0 focus:outline-0 font-medium"
             >
- {{ 'Задача' }} </textarea
-            >
-            <span class="text-sm text-neutral-300 pl-1 font-medium"
+            </textarea>
+            <span class="text-sm text-neutral-300 font-medium"
               >Задачи: {{ item.taskData.length }}</span
             >
           </div>
@@ -100,10 +112,10 @@ function addToTaskList(columnIndex: number, event: MouseEvent) {
                 <input
                   v-model="task.dateInp"
                   type="date"
-                  class="appearance-none text-white rounded-md px-2 py-2 pr-10 w-full"
+                  class="appearance-none focus:outline-1 focus:outline-white text-white rounded-md px-2 py-2 pr-10 w-full"
                 />
                 <svg
-                  @click="openDateHeader(task.id)"
+                  @click="console.log(columnData)"
                   class="w-5 h-5 absolute right-3 top-1/2 focus:ring-1 focus:outline-0 -translate-y-1/2 text-white cursor-pointer"
                   fill="none"
                   stroke="currentColor"

@@ -10,6 +10,14 @@ const routes = [
     path: '/tskBoard',
     component: () => import('../pages/TaskBoard.vue'),
   },
+  {
+    path: '/login',
+    component: () => import('../pages/Autorisation.vue'),
+  },
+  {
+    path: '/registration',
+    component: () => import('../pages/Registration.vue'),
+  },
 ]
 
 const router = createRouter({

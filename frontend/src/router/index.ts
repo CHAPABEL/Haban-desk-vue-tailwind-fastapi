@@ -11,12 +11,12 @@ const routes = [
     component: () => import('../pages/TaskBoard.vue'),
   },
   {
-    path: '/login',
-    component: () => import('../pages/Autorisation.vue'),
+    path: '/reg',
+    component: () => import('../pages/Registration.vue'),
   },
   {
-    path: '/registration',
-    component: () => import('../pages/Registration.vue'),
+    path: '/login',
+    component: () => import('../pages/Login.vue'),
   },
 ]
 

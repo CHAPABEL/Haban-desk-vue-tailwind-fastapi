@@ -1,44 +1,64 @@
 <script setup lang="ts">
-import LoginSvg from '@/components/JstComponents/LoginSvg.vue'
-</script>
+import { ref } from 'vue'
+import LoginInput from '@/components/JstComponents/LoginInput.vue'
+import PasInput from '@/components/JstComponents/PasInput.vue'
+import LoginApi from '@/components/JstComponents/LoginApi.vue'
 
+const userInfoObj = ref({
+  userId: Date.now(),
+  userEmail: '',
+  userPass: Number,
+})
+</script>
 <template>
   <main class="w-full flex h-screen items-center justify-center bg-neutral-700">
-    <section class="flex flex-col w-[25%] items-center gap-8">
-      <span class="text-white text-3xl font-extrabol pb-4">Welcome back!</span>
-      <div class="flex flex-col w-full gap-10">
-        <div class="relative">
+    <section class="flex flex-col items-center w-[25%] gap-7">
+      <span class="text-3xl font-extrabold text-white"> Start now! </span>
+      <div class="flex w-full flex-col gap-7">
+        <div class="relative flex flex-col gap-1">
           <label
             class="bg-neutral-700 font-semibold text-white absolute top-[-25px] p-2 left-[30px]"
             >Email</label
           >
-          <input
-            type="text"
-            class="ring-1 ring-white w-full font-extralight text-sm placeholder:text-neutral-400 bg-neutral-700 focus:outline-2 focus:outline-white text-white pt-3 pb-3 pl-4 rounded-4xl"
-            placeholder="email@gmail.com"
-          />
-        </div>
-        <div class="relative flex flex-col gap-1">
-          <label
-            class="bg-neutral-700 font-semibold text-white absolute top-[-25px] p-2 left-[30px]"
-            >Password</label
+          <div
+            class="bg-neutral-700 flex w-full items-center justify-between rounded-4xl border border-white px-4"
           >
-          <input
-            type="text"
-            class="ring-1 ring-white w-full font-extralight text-sm placeholder:text-neutral-400 bg-neutral-700 focus:outline-2 focus:outline-white text-white pt-3 pb-3 pl-4 rounded-4xl"
-            placeholder="Enter your password"
-          />
-          <a href="#" class="text-[12px] w-[34%] flex text-white font-semibold">
-            Forgot Password?
-          </a>
+            <LoginInput placeholder="Enter your Email" v-model="userInfoObj.userEmail" />
+          </div>
         </div>
+        <PasInput text="Password" v-model="userInfoObj.userPass" />
+        <PasInput text="Second password" />
       </div>
-      <button
-        class="bg-neutral-200 text-neutral-700 text-xl rounded-4xl font-semibold w-full p-2 hover:bg-neutral-300 cursor-pointer transition-all ease-in-out duration-100"
+      <div class="flex flex-col w-full items-center gap-5">
+        <button
+          @click="console.log(userInfoObj)"
+          class="bg-neutral-200 text-black text-lg rounded-4xl font-semibold w-full p-2 hover:bg-neutral-300 cursor-pointer transition-all ease-in-out duration-100"
+        >
+          Register
+        </button>
+        <span class="text-neutral-500">- or -</span>
+        <LoginApi />
+      </div>
+      <svg
+        class="absolute top-0 left-0"
+        width="341"
+        height="508"
+        viewBox="0 0 341 508"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        Login
-      </button>
+        <circle cx="35.5" cy="202.5" r="305.5" fill="#8BDA7D" />
+      </svg>
+      <svg
+        class="absolute bottom-0 right-0"
+        width="405"
+        height="522"
+        viewBox="0 0 405 522"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle cx="305.5" cy="305.5" r="305.5" fill="#F187C5" />
+      </svg>
     </section>
-    <LoginSvg />
   </main>
 </template>

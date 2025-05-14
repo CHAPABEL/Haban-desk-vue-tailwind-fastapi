@@ -17,6 +17,14 @@ function autoResize(event: Event) {
   textarea.style.height = `${textarea.scrollHeight}px`
 }
 
+function maxWords(event: Event) {
+  const textarea = event.target as HTMLTextAreaElement
+  const maxChars = 25
+  if (textarea.value.length > maxChars) {
+    textarea.value = textarea.value.slice(0, maxChars)
+  }
+}
+
 const dateRefs = reactive<Record<number, HTMLInputElement | null>>({})
 function openDateHeader(taskId: number) {
   const inputRef = dateRefs[taskId]
@@ -84,17 +92,18 @@ defineExpose({
     <section class="bg-neutral-600 w-[80%] p-8 flex flex-col h-full gap-7 pt-7">
       <NavBar />
       <section
-        class="flex overflow-x-auto w-full gap-5 flex-nowrap custom-scrollbar h-full items-start"
+        class="flex overflow-x-auto w-full gap-3 p-2 flex-nowrap custom-scrollbar h-full items-start"
       >
         <div
           v-for="(item, index) in columnData"
           :key="index"
-          class="snap-start flex flex-col min-w-[27%] pb-3 p-3 bg-neutral-500 gap-8 transition duration-300 easy-in-out hover:scale-[101%] rounded-lg"
+          class="snap-start flex flex-col min-w-[28%] pb-3 p-3 bg-neutral-500 gap-8 transition duration-300 easy-in-out hover:scale-[101%] rounded-lg"
         >
           <div class="flex flex-col gap-2">
             <textarea
               v-model="item.nameTask"
-              class="text-base text-white siz resize-none h-6 focus:ring-0 focus:outline-0 font-medium"
+              @input="maxWords"
+              class="text-base text-white border-b-2 resize-none h-7 focus:ring-0 focus:outline-0 font-medium"
             >
             </textarea>
             <span class="text-sm text-neutral-300 font-medium"

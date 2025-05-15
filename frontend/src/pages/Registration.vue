@@ -1,20 +1,42 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
+
 import PasInput from '@/components/JstComponents/PasInput.vue'
 import LoginApi from '@/components/JstComponents/LoginApi.vue'
+
 const userPassVal = ref()
 const userSecondPassVal = ref()
 const BoolButton = ref()
 
 const confirmPass = computed(() => userPassVal.value === userSecondPassVal.value)
 
-function passwordCheked() {
+async function passwordCheked() {
   BoolButton.value = true
-  if (confirmPass.value) {
-    userInfoObj.userPass = userPassVal.value
-    console.log(userInfoObj)
-  } else {
-    console.log('40404')
+  if (!confirmPass.value) {
+    console.log('Пароли не совпадают')
+    return
+  }
+
+  userInfoObj.userPass = userPassVal.value
+  try {
+    const response = await fetch('http://127.0.0.1:8000/', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        Email: userInfoObj.userEmail,
+        Password: userInfoObj.userPass,
+      }),
+    })
+    const data = await response.json()
+    localStorage.setItem('jwt_token', data.token)
+    console.log('успешная регистрация')
+    if (!response.ok) {
+      throw new Error('ошибка регистрации')
+    }
+  } catch (error) {
+    console.log(error)
   }
 }
 

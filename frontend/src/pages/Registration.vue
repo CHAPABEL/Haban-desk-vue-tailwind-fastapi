@@ -1,19 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import LoginInput from '@/components/JstComponents/LoginInput.vue'
 import PasInput from '@/components/JstComponents/PasInput.vue'
 import LoginApi from '@/components/JstComponents/LoginApi.vue'
+const userPassVal = ref()
+const userSecondPassVal = ref()
+const BoolButton = ref(false)
 
-const userInfoObj = ref({
+const confirmPass = computed(() => userPassVal.value === userSecondPassVal.value)
+
+function passwordCheked() {
+  BoolButton.value = true
+  if (confirmPass.value) {
+    userInfoObj.userPass = userPassVal.value
+    console.log(userInfoObj)
+  } else {
+    console.log('40404')
+  }
+}
+
+function pasErrorFunction() {
+  if (!BoolButton.value) {
+    return 'border-white'
+  } else {
+    return confirmPass.value ? 'border-white' : 'border-red-500'
+  }
+}
+
+const userInfoObj = reactive({
   userId: Date.now(),
   userEmail: '',
-  userPass: Number,
+  userPass: '',
 })
 </script>
 <template>
   <main class="w-full flex h-screen items-center justify-center bg-neutral-700">
-    <section class="flex flex-col items-center w-[25%] gap-7">
-      <span class="text-3xl font-extrabold text-white"> Start now! </span>
+    <section class="flex flex-col items-center w-[25%] gap-8">
+      <span class="text-white text-3xl font-extrabold pb-4"> Start now! </span>
       <div class="flex w-full flex-col gap-7">
         <div class="relative flex flex-col gap-1">
           <label
@@ -23,15 +46,30 @@ const userInfoObj = ref({
           <div
             class="bg-neutral-700 flex w-full items-center justify-between rounded-4xl border border-white px-4"
           >
-            <LoginInput placeholder="Enter your Email" v-model="userInfoObj.userEmail" />
+            <input
+              type="text "
+              class="font-extralight text-sm w-full placeholder:text-neutral-400 rounded-4xl bg-neutral-700 text-white pt-3 pb-3 focus:outline-none"
+              placeholder="Enter your Email"
+              v-model="userInfoObj.userEmail"
+            />
           </div>
         </div>
-        <PasInput text="Password" v-model="userInfoObj.userPass" />
-        <PasInput text="Second password" />
+        <PasInput
+          text="Password"
+          :wrapperClass="pasErrorFunction()"
+          v-model="userPassVal"
+          :boolSpan="BoolButton"
+        />
+        <PasInput
+          text="Second password"
+          v-model="userSecondPassVal"
+          :wrapperClass="pasErrorFunction()"
+          :boolSpan="BoolButton"
+        />
       </div>
       <div class="flex flex-col w-full items-center gap-5">
         <button
-          @click="console.log(userInfoObj)"
+          @click="passwordCheked"
           class="bg-neutral-200 text-black text-lg rounded-4xl font-semibold w-full p-2 hover:bg-neutral-300 cursor-pointer transition-all ease-in-out duration-100"
         >
           Register

@@ -19,7 +19,11 @@ const showPasswordNum = ref(false)
           <div
             class="bg-neutral-700 flex w-full items-center justify-between rounded-4xl border border-white px-4"
           >
-            <LoginInput placeholder="email@gmail.com" type="text" />
+            <input
+              class="font-extralight text-sm w-full placeholder:text-neutral-400 rounded-4xl bg-neutral-700 text-white pt-3 pb-3 focus:outline-none"
+              placeholder="email@gmail.com"
+              type="text"
+            />
           </div>
         </div>
         <div class="relative flex flex-col gap-1">
@@ -30,7 +34,8 @@ const showPasswordNum = ref(false)
           <div
             class="bg-neutral-700 flex w-full items-center justify-between rounded-4xl border border-white px-4"
           >
-            <LoginInput
+            <input
+              class="font-extralight text-sm w-full placeholder:text-neutral-400 rounded-4xl bg-neutral-700 text-white pt-3 pb-3 focus:outline-none"
               :type="showPasswordNum ? 'text' : 'password'"
               placeholder="Enter your password"
             />
@@ -88,12 +93,31 @@ const showPasswordNum = ref(false)
         <LoginApi />
         <div class="flex gap-2 pt-2">
           <span class="text-sm font-extralight text-neutral-400">Don’t have an account?</span>
-          <a href="#" class="text-sm font-extralight text-green-400 hover:text-green-500"
+          <a href="./reg" class="text-sm font-extralight text-green-400 hover:text-green-500"
             >Sign up!</a
           >
         </div>
       </div>
     </section>
-    <LoginSvg />
+    <svg
+      class="absolute top-0 left-0"
+      width="341"
+      height="508"
+      viewBox="0 0 341 508"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="35.5" cy="202.5" r="305.5" fill="#8BDA7D" />
+    </svg>
+    <svg
+      class="absolute bottom-0 right-0"
+      width="405"
+      height="522"
+      viewBox="0 0 405 522"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="305.5" cy="305.5" r="305.5" fill="#F187C5" />
+    </svg>
   </main>
 </template>

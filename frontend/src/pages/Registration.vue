@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
-import LoginInput from '@/components/JstComponents/LoginInput.vue'
 import PasInput from '@/components/JstComponents/PasInput.vue'
 import LoginApi from '@/components/JstComponents/LoginApi.vue'
 const userPassVal = ref()
 const userSecondPassVal = ref()
-const BoolButton = ref(false)
+const BoolButton = ref()
 
 const confirmPass = computed(() => userPassVal.value === userSecondPassVal.value)
 
@@ -20,11 +19,8 @@ function passwordCheked() {
 }
 
 function pasErrorFunction() {
-  if (!BoolButton.value) {
-    return 'border-white'
-  } else {
-    return confirmPass.value ? 'border-white' : 'border-red-500'
-  }
+  if (!BoolButton.value) return 'border-white'
+  return confirmPass.value ? 'border-white' : 'border-red-500'
 }
 
 const userInfoObj = reactive({

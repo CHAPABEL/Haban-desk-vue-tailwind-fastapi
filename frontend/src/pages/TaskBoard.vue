@@ -151,7 +151,7 @@ defineExpose({
             </div>
           </div>
           <button
-            @click="(event) => addToTaskList(index, event)"
+            @click="(event: MouseEvent) => addToTaskList(index, event)"
             class="bg-none flex items-center gap-2 transition-all rounded-lg justify-center duration-200 ease-in-out hover:bg-neutral-600 text-white"
           >
             <svg

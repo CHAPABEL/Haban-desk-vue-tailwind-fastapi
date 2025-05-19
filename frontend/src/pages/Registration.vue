@@ -19,22 +19,20 @@ async function passwordCheked() {
 
   userInfoObj.userPass = userPassVal.value
   try {
-    const response = await fetch('http://127.0.0.1:8000/', {
+    const response = await fetch('http://127.0.0.1:8000/register', {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
       },
       body: JSON.stringify({
-        Email: userInfoObj.userEmail,
-        Password: userInfoObj.userPass,
+        user_email: userInfoObj.userEmail,
+        user_password: userInfoObj.userPass,
       }),
     })
+
     const data = await response.json()
     localStorage.setItem('jwt_token', data.token)
     console.log('успешная регистрация')
-    if (!response.ok) {
-      throw new Error('ошибка регистрации')
-    }
   } catch (error) {
     console.log(error)
   }

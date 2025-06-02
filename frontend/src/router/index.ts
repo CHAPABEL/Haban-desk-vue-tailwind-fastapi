@@ -1,3 +1,4 @@
+import path from 'path'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory, RouterView } from 'vue-router'
 
@@ -7,7 +8,7 @@ const routes = [
     component: () => import('../pages/App.vue'),
   },
   {
-    path: '/tskBoard',
+    path: '/tasks',
     component: () => import('../pages/TaskBoard.vue'),
   },
   {
@@ -17,6 +18,11 @@ const routes = [
   {
     path: '/login',
     component: () => import('../pages/Login.vue'),
+  },
+  {
+    path: '/:pathMAtch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue'),
   },
 ]
 

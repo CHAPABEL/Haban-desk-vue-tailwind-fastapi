@@ -1,15 +1,32 @@
 <script setup lang="ts">
+import { PluginContainer } from 'vite'
 import { ref, defineProps, defineEmits } from 'vue'
 const showPasswordNum = ref(false)
 
 const props = defineProps({
   text: String,
   Style: String,
+  placeholder: String,
   wrapperClass: {
     type: String,
     default: '',
   },
-  boolSpan: Boolean,
+  errorText: {
+    type: String,
+    default: '',
+  },
+  ShowSvg: {
+    type: Boolean,
+    default: true,
+  },
+  ShowForgot: {
+    type: Boolean,
+    default: false,
+  },
+  type: {
+    type: String,
+    default: 'password',
+  },
 })
 const value = defineModel<string>()
 </script>
@@ -17,9 +34,13 @@ const value = defineModel<string>()
 <template>
   <div class="flex flex-col">
     <div class="relative flex flex-col gap-1">
-      <label class="bg-neutral-700 font-semibold text-white absolute top-[-25px] p-2 left-[30px]">{{
-        props.text
-      }}</label>
+      <label
+        :class="[
+          'bg-neutral-700 font-semibold absolute top-[-25px] p-2 left-[30px]',
+          props.errorText,
+        ]"
+        >{{ props.text }}</label
+      >
       <div
         :class="[
           'bg-neutral-700 flex w-full items-center justify-between rounded-4xl border px-4',
@@ -28,11 +49,12 @@ const value = defineModel<string>()
       >
         <input
           v-model="value"
-          :type="showPasswordNum ? 'text' : 'password'"
-          placeholder="Enter your password"
+          :type="props.type === 'password' ? (showPasswordNum ? 'text' : 'password') : props.type"
+          :placeholder="placeholder"
           class="font-extralight text-sm w-full placeholder:text-neutral-400 rounded-4xl bg-neutral-700 text-white pt-3 pb-3 focus:outline-none"
         />
         <svg
+          v-if="ShowSvg"
           @click="showPasswordNum = !showPasswordNum"
           class="group cursor-pointer"
           width="25"
@@ -66,11 +88,14 @@ const value = defineModel<string>()
           </g>
         </svg>
       </div>
+      <div v-if="ShowForgot" class="flex justify-end">
+        <router-link
+          to="#"
+          class="text-[12px] hover:text-neutral-200 pt-1 flex text-white font-semibold"
+        >
+          Forgot Password?
+        </router-link>
+      </div>
     </div>
-    <span
-      v-if="props.boolSpan && props.wrapperClass === 'border-red-500'"
-      class="text-red-500 pt-2 text-sm text-right font-extralight"
-      >Пароли не совпадают</span
-    >
   </div>
 </template>

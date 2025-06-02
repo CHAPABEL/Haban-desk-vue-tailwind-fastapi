@@ -2,14 +2,18 @@ version: "3.9"
 
 services:
   backend:
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://myuser:mypassword@postgres:5432/mydatabase
     build:
       context: ./backend
     container_name: backend-FastApi
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app/app
     restart: always
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -19,22 +23,22 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
-    restart: always
+      - /app/node_modules
     command: npm run dev -- --host
+    restart: always
 
-  mysql:
-    image: mysql:latest
+  postgres:
+    image: postgres:15
     container_name: TaskTracker-database
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - pg_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  pg_data:

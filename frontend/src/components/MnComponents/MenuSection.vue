@@ -1,5 +1,11 @@
+<script setup lang="ts">
+import { defineEmits } from 'vue'
+
+const emit = defineEmits(['saveTaskData'])
+</script>
+
 <template>
-  <section class="flex flex-col gap-5 justify-start pt-8 pl-4 pr-4 bg-neutral-700 w-[20%]">
+  <section class="flex flex-col gap-5 justify-start pt-8 pl-4 pr-4 bg-neutral-700 w-[15%]">
     <div class="flex flex-col items-center gap-2">
       <svg
         width="44"
@@ -21,21 +27,18 @@
       >
         Главная
       </button>
+
       <button
         class="text-white text-left pl-4 h-10 cursor-pointer text-lg rounded-sm transition-all duration-200 ease-in-out font-semibold hover:bg-neutral-600"
       >
-        Уведомления
-      </button>
-      <button
-        class="text-white text-left pl-4 h-10 cursor-pointer text-lg rounded-sm transition-all duration-200 ease-in-out font-semibold hover:bg-neutral-600"
-      >
-        Поиск
-      </button>
-      <button
-        class="text-white text-left pl-4 h-10 cursor-pointer text-lg rounded-sm transition-all duration-200 ease-in-out font-semibold hover:bg-neutral-600"
-      >
-        Мои доски
+        Мои задания
       </button>
     </div>
+    <button
+      @click="emit('saveTaskData')"
+      class="text-white text-left pl-4 h-10 cursor-pointer text-lg rounded-sm transition-all duration-200 ease-in-out font-semibold hover:bg-neutral-600"
+    >
+      Сохранить
+    </button>
   </section>
 </template>

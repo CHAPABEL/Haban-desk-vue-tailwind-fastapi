@@ -1,84 +1,98 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
-
+import ErrorField from '@/components/MnComponents/ErrorField.vue'
 import PasInput from '@/components/JstComponents/PasInput.vue'
 import LoginApi from '@/components/JstComponents/LoginApi.vue'
+import type { create } from 'domain'
+import router from '@/router'
+const BoolButton = ref(false)
+const ShowError = ref(false)
+const errorTextVal = ref('')
 
-const userPassVal = ref()
-const userSecondPassVal = ref()
-const BoolButton = ref()
+const confirmPass = computed(
+  () =>
+    ShowError.value === true ||
+    (userInfoObj.userPass === userInfoObj.userSecondPass &&
+      userInfoObj.userPass.trim() !== '' &&
+      userInfoObj.userSecondPass.trim() !== ''),
+)
 
-const confirmPass = computed(() => userPassVal.value === userSecondPassVal.value)
+const showValidationError = computed(() => !confirmPass.value || ShowError.value)
+
+function pasErrorFunction() {
+  if (!BoolButton.value) return 'border-neutral-400 text-white'
+  return showValidationError.value ? 'border-red-400 text-red-400' : 'border-white text-white'
+}
+
+const userInfoObj = reactive({
+  userEmail: '',
+  userPass: '',
+  userSecondPass: '',
+})
 
 async function passwordCheked() {
   BoolButton.value = true
   if (!confirmPass.value) {
     console.log('Пароли не совпадают')
+    errorTextVal.value = 'Пароли не совпадают'
     return
   }
-
-  userInfoObj.userPass = userPassVal.value
   try {
-    const response = await fetch('http://127.0.0.1:8000/register', {
+    const response = await fetch('http://127.0.0.1:8000/auth/register', {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         user_email: userInfoObj.userEmail,
         user_password: userInfoObj.userPass,
+        user_create_at: new Date().toISOString(),
       }),
     })
-
     const data = await response.json()
-    localStorage.setItem('jwt_token', data.token)
-    console.log('успешная регистрация')
+
+    if (response.ok) {
+      localStorage.setItem('jwt_token', data.token)
+      router.push('/tasks')
+    } else if (response.status === 422 || response.status === 400) {
+      ShowError.value = true
+      errorTextVal.value = data.detail || 'Неправильно веденное поле'
+    }
   } catch (error) {
     console.log(error)
   }
 }
-
-function pasErrorFunction() {
-  if (!BoolButton.value) return 'border-white'
-  return confirmPass.value ? 'border-white' : 'border-red-500'
-}
-
-const userInfoObj = reactive({
-  userId: Date.now(),
-  userEmail: '',
-  userPass: '',
-})
 </script>
 <template>
   <main class="w-full flex h-screen items-center justify-center bg-neutral-700">
-    <section class="flex flex-col items-center w-[25%] gap-8">
+    <section
+      class="relative z-50 flex flex-col items-center w-[70%] md:w-[30%] lg:w-[45%] xl:w-[25%] gap-8"
+    >
       <span class="text-white text-3xl font-extrabold pb-4"> Start now! </span>
       <div class="flex w-full flex-col gap-7">
-        <div class="relative flex flex-col gap-1">
-          <label
-            class="bg-neutral-700 font-semibold text-white absolute top-[-25px] p-2 left-[30px]"
-            >Email</label
-          >
-          <div
-            class="bg-neutral-700 flex w-full items-center justify-between rounded-4xl border border-white px-4"
-          >
-            <input
-              type="text "
-              class="font-extralight text-sm w-full placeholder:text-neutral-400 rounded-4xl bg-neutral-700 text-white pt-3 pb-3 focus:outline-none"
-              placeholder="Enter your Email"
-              v-model="userInfoObj.userEmail"
-            />
-          </div>
-        </div>
+        <PasInput
+          text="Email"
+          v-model="userInfoObj.userEmail"
+          type="text"
+          placeholder="Enter your Email"
+          :errorText="pasErrorFunction()"
+          :wrapperClass="pasErrorFunction()"
+          :ShowSvg="false"
+        />
+
         <PasInput
           text="Password"
+          placeholder="Enter your Password"
+          :errorText="pasErrorFunction()"
           :wrapperClass="pasErrorFunction()"
-          v-model="userPassVal"
+          v-model="userInfoObj.userPass"
           :boolSpan="BoolButton"
         />
         <PasInput
           text="Second password"
-          v-model="userSecondPassVal"
+          placeholder="Repeat your Password"
+          v-model="userInfoObj.userSecondPass"
+          :errorText="pasErrorFunction()"
           :wrapperClass="pasErrorFunction()"
           :boolSpan="BoolButton"
         />
@@ -93,26 +107,23 @@ const userInfoObj = reactive({
         <span class="text-neutral-500">- or -</span>
         <LoginApi />
       </div>
-      <svg
-        class="absolute top-0 left-0"
-        width="341"
-        height="508"
-        viewBox="0 0 341 508"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle cx="35.5" cy="202.5" r="305.5" fill="#8BDA7D" />
-      </svg>
-      <svg
-        class="absolute bottom-0 right-0"
-        width="405"
-        height="522"
-        viewBox="0 0 405 522"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle cx="305.5" cy="305.5" r="305.5" fill="#F187C5" />
-      </svg>
     </section>
+    <svg
+      class="absolute z-30 top-0 left-0 size-[35%] md:w-[100px] md:h-[200px] lg:w-[450px] lg:h-[450px] xl:w-[550px] xl:h-[450px]"
+      viewBox="0 0 341 508"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="35.5" cy="202.5" r="305.5" fill="#8BDA7D" />
+    </svg>
+    <svg
+      class="absolute z-30 bottom-0 right-0 size-[35%] md:w-[100px] md:h-[200px] lg:w-[450px] lg:h-[450px] xl:w-[550px] xl:h-[450px]"
+      viewBox="0 0 405 522"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="305.5" cy="305.5" r="305.5" fill="#F187C5" />
+    </svg>
+    <ErrorField :errorText="errorTextVal" v-if="showValidationError && BoolButton" />
   </main>
 </template>

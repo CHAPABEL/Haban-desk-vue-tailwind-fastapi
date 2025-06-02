@@ -1,207 +1,83 @@
 <script setup lang="ts">
-import { ref, type Reactive } from 'vue'
+import { onMounted, ref } from 'vue'
+import MessageField from '@/components/MnComponents/MessageField.vue'
 import { computed, reactive } from 'vue'
+import type { ColumnType, UserTask } from '@/types.ts'
 import MenuSection from '../components/MnComponents/MenuSection.vue'
 import NavBar from '@/components/JstComponents/NavBar.vue'
-const nowDate = ref(new Date().toISOString().split('T')[0])
+import Tasks from '@/components/MnComponents/Tasks.vue'
+const visible = ref(false)
+const columns = ref<ColumnType[]>([])
+import { authFetch } from '@/api/api'
 
-const columnData = ref<column[]>([])
-const newTask = ref('')
-const dateInput = ref('')
-const taskName = ref('')
-const taskDataArray = ref<Task[]>([])
-
-function autoResize(event: Event) {
-  const textarea = event.target as HTMLTextAreaElement
-  textarea.style.height = 'auto'
-  textarea.style.height = `${textarea.scrollHeight}px`
-}
-
-function maxWords(event: Event) {
-  const textarea = event.target as HTMLTextAreaElement
-  const maxChars = 25
-  if (textarea.value.length > maxChars) {
-    textarea.value = textarea.value.slice(0, maxChars)
+async function loadTasks() {
+  try {
+    const data = await authFetch('http://127.0.0.1:8000/tasks/', {
+      method: 'GET',
+    })
+    console.log('Loaded tasks:', data.tasks)
+    columns.value = data.tasks.map((item: UserTask) => item.task_data).flat()
+  } catch (error: any) {
+    console.log(error)
   }
 }
 
-const dateRefs = reactive<Record<number, HTMLInputElement | null>>({})
-function openDateHeader(taskId: number) {
-  const inputRef = dateRefs[taskId]
-  if (inputRef) {
-    inputRef.click()
-  }
-  console.log(dateRefs)
-}
-
-interface Task {
-  id: number
-  dateInp: string
-  textValue: string
-}
-
-interface column {
-  taskValue: number
-  nameTask: string
-  taskData: Task[]
-}
-
-function createPushData() {
-  columnData.value.push({
-    taskValue: Date.now(),
-    nameTask: 'Задача',
-    taskData: [],
-  })
-  taskDataArray.value = []
-  console.log(columnData.value)
-}
-
-function getDateNow(task: Task) {
-  const today = new Date()
-  const newDate = new Date(task.dateInp)
-  const newDateObj = new Date(newDate)
-  const diffInTime = newDateObj.getTime() - today.getTime()
-  const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24))
-  console.log('осталось дней:', diffInDays)
-  return {
-    'bg-red-400': diffInDays <= 1,
-    'bg-amber-400': diffInDays >= 2,
-    'bg-green-400': diffInDays >= 5,
-  }
-}
-
-function addToTaskList(columnIndex: number, event: MouseEvent) {
-  columnData.value[columnIndex].taskData.push({
-    id: Date.now(),
-    textValue: '',
-    dateInp: nowDate.value,
-  })
-  newTask.value = ''
-  dateInput.value = ''
-  console.log(columnData.value[columnIndex].taskData)
-}
-
-defineExpose({
-  dateRefs,
+onMounted(() => {
+  loadTasks()
 })
+
+function prePaylad() {
+  return {
+    task_data: columns.value.map((column) => ({
+      task_id: column.task_id,
+      task_name: column.task_name,
+      task_value: column.task_value.map((task) => ({
+        text_id: task.text_id,
+        date_value: task.date_value,
+        text_value: task.text_value,
+      })),
+    })),
+  }
+}
+
+async function pushTaskData() {
+  const token = localStorage.getItem('access-token')
+  const payload = prePaylad()
+  try {
+    console.log('Payload to send:', JSON.stringify(payload, null, 2))
+    const response = await fetch('http://127.0.0.1:8000/tasks/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      console.error('Validation error:', data)
+      return
+    }
+
+    visible.value = true
+    setTimeout(() => {
+      visible.value = false
+    }, 2000)
+
+    console.log('Success:', data)
+  } catch (error) {
+    console.error('Fetch error:', error)
+  }
+}
 </script>
 
 <template>
   <main class="w-full flex h-screen flex-row">
-    <MenuSection />
-    <section class="bg-neutral-600 w-[80%] p-8 flex flex-col h-full gap-7 pt-7">
+    <MenuSection @saveTaskData="pushTaskData" />
+    <section class="bg-neutral-600 w-[85%] p-8 flex flex-col h-full gap-7 pt-7">
       <NavBar />
-      <section
-        class="flex overflow-x-auto w-full gap-3 p-2 flex-nowrap custom-scrollbar h-full items-start"
-      >
-        <div
-          v-for="(item, index) in columnData"
-          :key="index"
-          class="snap-start flex flex-col min-w-[28%] pb-3 p-3 bg-neutral-500 gap-8 transition duration-300 easy-in-out hover:scale-[101%] rounded-lg"
-        >
-          <div class="flex flex-col gap-2">
-            <textarea
-              v-model="item.nameTask"
-              @input="maxWords"
-              class="text-base text-white border-b-2 resize-none h-7 focus:ring-0 focus:outline-0 font-medium"
-            >
-            </textarea>
-            <span class="text-sm text-neutral-300 font-medium"
-              >Задачи: {{ item.taskData.length }}</span
-            >
-          </div>
-          <div class="flex gap-3 flex-col">
-            <div
-              v-for="(task, index) in item.taskData"
-              :key="task.id"
-              :class="getDateNow(task)"
-              class="p-2 flex flex-col gap-[10px] rounded-lg"
-            >
-              <div class="relative">
-                <input
-                  v-model="task.dateInp"
-                  type="date"
-                  class="appearance-none focus:outline-1 focus:outline-white text-white rounded-md px-2 py-2 pr-10 w-full"
-                />
-                <svg
-                  @click="console.log(columnData)"
-                  class="w-5 h-5 absolute right-3 top-1/2 focus:ring-1 focus:outline-0 -translate-y-1/2 text-white cursor-pointer"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10m-10 4h6m-6 4h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-
-              <div class="flex relative justify-between">
-                <textarea
-                  @input="autoResize($event)"
-                  rows="1"
-                  v-model="task.textValue"
-                  class="text-white form-input text-lg rounded-lg font-light pb-6 focus:ring-1 focus:outline-0 focus:ring-white px-2 py-2 pr-10 w-full placeholder-white focus:outline-none resize-none"
-                  placeholder="Напишите сюда задачу"
-                />
-              </div>
-            </div>
-          </div>
-          <button
-            @click="(event: MouseEvent) => addToTaskList(index, event)"
-            class="bg-none flex items-center gap-2 transition-all rounded-lg justify-center duration-200 ease-in-out hover:bg-neutral-600 text-white"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 12 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clip-path="url(#clip0_4_500)">
-                <path
-                  d="M11.6695 5.03846H6.90255V0.230774H4.99577V5.03846H0.228821V6.96155H4.99577V11.7692H6.90255V6.96155H11.6695V5.03846Z"
-                  fill="white"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_4_500">
-                  <rect width="11.8983" height="12" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            <span>Добавить задачу</span>
-          </button>
-        </div>
-        <button
-          @click="createPushData"
-          class="bg-none flex min-w-[162px] items-center mt-3 font-extralight gap-2 transition-all justify-center duration-200 ease-in-out hover:shadow-[0px_1px_0px_0px_white] pb-2 text-white"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 12 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g clip-path="url(#clip0_4_500)">
-              <path
-                d="M11.6695 5.03846H6.90255V0.230774H4.99577V5.03846H0.228821V6.96155H4.99577V11.7692H6.90255V6.96155H11.6695V5.03846Z"
-                fill="white"
-              />
-            </g>
-            <defs>
-              <clipPath id="clip0_4_500">
-                <rect width="11.8983" height="12" fill="white" />
-              </clipPath>
-            </defs>
-          </svg>
-          <span>Добавить Колонку</span>
-        </button>
-      </section>
+      <Tasks :modelValue="columns" @updateData="columns = $event" />
     </section>
+    <MessageField v-if="visible" :message="'Изменения сохранены'" />
   </main>
 </template>
